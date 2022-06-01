@@ -6,7 +6,7 @@ IMPORTS
 ### System
 import os
 import sys
-sys.path.append(".")
+sys.path.append(".") # this is a temp work around, wouldnt load for me otherwise?
 
 ### NF Modules
 from nfsampler.nfmodel.realNVP import RealNVP
@@ -27,7 +27,7 @@ config.update("jax_enable_x64", True)
 import harmonic as hm
 
 ### Plotting
-import corner # I want to use GetDist instead
+# import corner # I want to use GetDist instead
 from getdist import plots, MCSamples
 import matplotlib.pyplot as plt
 
@@ -62,6 +62,7 @@ d_dual_moon = jax.grad(dual_moon_pe)
 EXAMPLE PARAMS
 """
 
+# Ive edited these so the resulting harmonic chains are (100,1000) to match older examples
 n_dim = 2
 n_chains = 100 # change to 100 for the normal harmonic chain amount (default 30)
 n_loop = 3 # I'm interested in increasing this to see results (default 3)
@@ -216,6 +217,7 @@ if n_dim == 2:
     evidence_numerical_integration = np.sum(np.exp(ln_posterior_grid)) * dx * dy
 
     print(f"evidence_numerical_integration = {evidence_numerical_integration}")
+    # Im getting 0.6 for evidence rather than 1.8 reported in last weeks' meeting!
 
 
 # Now need samples and lnprob
