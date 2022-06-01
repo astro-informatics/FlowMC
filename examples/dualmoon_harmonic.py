@@ -271,7 +271,7 @@ print(ev_kde.nsamples_eff_per_chain)
 # DONE: Evaluate model on the grid (gives diff answer from analytical and harmonic ev)
 # DONE: Plot model image (only works for 2d)
 # DONE: Sample from model and getdist plot it (emcee)
-# TODO: Sample from model and getdist plot it (nfsampler)
+# TODO: Sample from model and getdist plot it (nfsampler) - POTENTIALLY MORE INVOLVED!!!
 # TODO: clean up logspace discrepency
 # TODO: clean up code completely
 
@@ -340,7 +340,7 @@ plt.savefig(os.path.join(PLOT_DIR, "model_image.pdf"))
 # np.random.seed(1) # for reproducibility
 
 # # Set initial random position and state
-# pos = np.random.rand(nchains_mc,n_dim) * 1. + np.zeros(n_dim)
+pos = np.random.rand(nchains_mc,n_dim) * 1. + np.zeros(n_dim) # SPREAD THIS OUT
 # rstate = np.random.get_state() # same each time as we have set the seed?
 
 # # Instantiate and execute sampler 
@@ -358,101 +358,101 @@ plt.savefig(os.path.join(PLOT_DIR, "model_image.pdf"))
 # g.triangle_plot([samplesMC, samples_model_MC], filled=False)
 # g.export(os.path.join(PLOT_DIR, "compare_samples_emcee.pdf"))
 
-""" 
-SAMPLE FROM MODEL IN 2D USING NFSampler
-"""
+# """ 
+# SAMPLE FROM MODEL IN 2D USING NFSampler
+# """
 
-# Ive edited these so the resulting harmonic chains are (100,1000) to match older examples
-n_dim = 2
-n_chains = 100 # change to 100 for the normal harmonic chain amount (default 30)
-n_loop = 3 # I'm interested in increasing this to see results (default 3)
-n_local_steps = 1000 #change to 500 for normal harmonic chain amount (default 1000)
-n_global_steps = 1000 #change to 500 for normal harmonic chain amount (default 1000)
-learning_rate = 0.1
-momentum = 0.9
-num_epochs = 5
-batch_size = 50
-stepsize = 0.01
+# # Ive edited these so the resulting harmonic chains are (100,1000) to match older examples
+# n_dim = 2
+# n_chains = 100 # change to 100 for the normal harmonic chain amount (default 30)
+# n_loop = 3 # I'm interested in increasing this to see results (default 3)
+# n_local_steps = 1000 #change to 500 for normal harmonic chain amount (default 1000)
+# n_global_steps = 1000 #change to 500 for normal harmonic chain amount (default 1000)
+# learning_rate = 0.1
+# momentum = 0.9
+# num_epochs = 5
+# batch_size = 50
+# stepsize = 0.01
 
-@partial(static_argnums=1)
-def model_func(x):
-    x_array = np.array(x)
-    return model_kde.predict(x_array)
+# @partial(static_argnums=1)
+# def model_func(x):
+#     x_array = np.array(x)
+#     return model_kde.predict(x_array)
 
-d_model_func = jax.grad(model_func)
+# d_model_func = jax.grad(model_func)
 
-print("Preparing RNG keys")
-rng_key_set = initialize_rng_keys(n_chains, seed=42)
+# print("Preparing RNG keys")
+# rng_key_set = initialize_rng_keys(n_chains, seed=42)
 
-print("Initializing MCMC model and normalizing flow model.")
+# print("Initializing MCMC model and normalizing flow model.")
 
-initial_position = jax.random.normal(rng_key_set[0], shape=(n_chains, n_dim)) * 1
+# initial_position = jax.random.normal(rng_key_set[0], shape=(n_chains, n_dim)) * 1
 
-model = RealNVP(10, n_dim, 64, 1)
-run_mcmc = jax.vmap(mala_sampler, in_axes=(0, None, None, None, 0, None), out_axes=0)
+# model = RealNVP(10, n_dim, 64, 1)
+# run_mcmc = jax.vmap(mala_sampler, in_axes=(0, None, None, None, 0, None), out_axes=0)
 
-print("Initializing sampler class")
+# print("Initializing sampler class")
 
-nf_sampler_model = Sampler(
-    n_dim,
-    rng_key_set,
-    model,
-    run_mcmc,
-    model_func,
-    d_likelihood=d_model_func,
-    n_loop=n_loop,
-    n_local_steps=n_local_steps,
-    n_global_steps=n_global_steps,
-    n_chains=n_chains,
-    n_epochs=num_epochs,
-    n_nf_samples=100,
-    learning_rate=learning_rate,
-    momentum=momentum,
-    batch_size=batch_size,
-    stepsize=stepsize,
-)
+# nf_sampler_model = Sampler(
+#     n_dim,
+#     rng_key_set,
+#     model,
+#     run_mcmc,
+#     model_func,
+#     d_likelihood=d_model_func,
+#     n_loop=n_loop,
+#     n_local_steps=n_local_steps,
+#     n_global_steps=n_global_steps,
+#     n_chains=n_chains,
+#     n_epochs=num_epochs,
+#     n_nf_samples=100,
+#     learning_rate=learning_rate,
+#     momentum=momentum,
+#     batch_size=batch_size,
+#     stepsize=stepsize,
+# )
 
-print("Sampling")
+# print("Sampling")
 
-chains_model, _,_,_,_,_ = nf_sampler_model.sample(initial_position)
+# chains_model, _,_,_,_,_ = nf_sampler_model.sample(initial_position)
 
 
 
-# ### copied in the cython code for the model.predict
-# def predict(self, np.ndarray[double, ndim=1, mode="c"] x):
-#         """Predict the value of the posterior at point x.
+# # ### copied in the cython code for the model.predict
+# # def predict(self, np.ndarray[double, ndim=1, mode="c"] x):
+# #         """Predict the value of the posterior at point x.
 
-#         Args:
+# #         Args:
 
-#             x (double ndarray[ndim]): 1D array of sample of shape (ndim) to predict
-#                 posterior value.
+# #             x (double ndarray[ndim]): 1D array of sample of shape (ndim) to predict
+# #                 posterior value.
         
-#         Returns:
+# #         Returns:
 
-#             (double): Predicted log_e posterior value.
+# #             (double): Predicted log_e posterior value.
 
-#         """
-#         samples = self.samples        
-#         start_end = self.start_end
-#         inv_scales = self.inv_scales
-#         nsamples = samples.shape[0], 
-#         ndim = self.ndim
-#         ngrid = self.ngrid
-#         cdef double inv_diam = 1.0/self.D, radius_squared = self.radius_squared
-#         cdef dict grid = self.grid
+# #         """
+# #         samples = self.samples        
+# #         start_end = self.start_end
+# #         inv_scales = self.inv_scales
+# #         nsamples = samples.shape[0], 
+# #         ndim = self.ndim
+# #         ngrid = self.ngrid
+# #         cdef double inv_diam = 1.0/self.D, radius_squared = self.radius_squared
+# #         cdef dict grid = self.grid
 
-#         cdef long count = 0
+# #         cdef long count = 0
         
-#         # Find the pixel that the sample is in
-#         index = 0
-#         for i_dim in range(ndim):
-#             sub_index = <long>((x[i_dim]-start_end[i_dim,0]) * \
-#                 inv_scales[i_dim]*inv_diam) + 1
-#             index += sub_index*ngrid**i_dim
+# #         # Find the pixel that the sample is in
+# #         index = 0
+# #         for i_dim in range(ndim):
+# #             sub_index = <long>((x[i_dim]-start_end[i_dim,0]) * \
+# #                 inv_scales[i_dim]*inv_diam) + 1
+# #             index += sub_index*ngrid**i_dim
 
-#         KernelDensityEstimate_loop_round_and_search(index, i_dim, ngrid, ndim, 
-#                                                     grid, samples, x, 
-#                                                     inv_scales, radius_squared, 
-#                                                     &count)
+# #         KernelDensityEstimate_loop_round_and_search(index, i_dim, ngrid, ndim, 
+# #                                                     grid, samples, x, 
+# #                                                     inv_scales, radius_squared, 
+# #                                                     &count)
 
-#         return log(count) - self.ln_norm
+# #         return log(count) - self.ln_norm
