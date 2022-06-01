@@ -5,16 +5,12 @@ from nfsampler.sampler.MALA import mala_sampler
 from nfsampler.sampler.Sampler import Sampler
 from nfsampler.utils.PRNG_keys import initialize_rng_keys
 
+import numpy as np
 import jax
 import jax.numpy as jnp  # JAX NumPy
 from jax.scipy.special import logsumexp
 from jax.config import config
 config.update("jax_enable_x64", True)
-
-import numpy as np
-import harmonic as hm
-import corner
-import matplotlib.pyplot as plt
 
 def dual_moon_pe(x):
     """
@@ -83,6 +79,9 @@ chains = np.array(chains)
 nf_samples = np.array(nf_samples[1])
 loss_vals = np.array(loss_vals)
 
+import corner
+import matplotlib.pyplot as plt
+
 # Plot one chain to show the jump
 plt.figure(figsize=(6, 6))
 axs = [plt.subplot(2, 2, i+1) for i in range(4)]
@@ -123,10 +122,11 @@ figure.set_size_inches(7, 7)
 figure.suptitle('Visualize NF samples')
 plt.show(block=False)
 
-
 ### Approximate Evidence using Harmonic: https://github.com/astro-informatics/harmonic
 
-# Isolate final samples and logprobs.
+import harmonic as hm
+
+# Construct chains
 samples = np.array(chains[:, -(n_local_steps + n_global_steps) :, :])
 lnprob = np.array(log_prob[:, -(n_local_steps + n_global_steps) :])
 chains = hm.Chains(n_dim)
@@ -150,9 +150,9 @@ if n_dim == 2:
     dx = x_grid[0, 1] - x_grid[0, 0]
     dy = y_grid[1, 0] - y_grid[0, 0]
     evidence_numerical_integration = np.sum(np.exp(ln_posterior_grid)) * dx * dy
-    print(f"Numerical Integration Eviddence = {evidence_numerical_integration}")
+    print(f"Numerical Integration Evidence = {evidence_numerical_integration}")
 
-# Fit Harmonic target model
+# Learn Harmonic target density
 domain_kde = []
 kde_diameter = 0.003
 model_kde = hm.model.KernelDensityEstimate(
