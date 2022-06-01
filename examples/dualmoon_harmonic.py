@@ -121,7 +121,7 @@ figure.set_size_inches(7, 7)
 figure.suptitle('Visualize NF samples')
 plt.show(block=False)
 
-### Approximate Evidence using Harmonic: https://github.com/astro-informatics/harmonic
+### Approximate Evidence using Harmonic (https://github.com/astro-informatics/harmonic)
 
 import harmonic as hm
 
