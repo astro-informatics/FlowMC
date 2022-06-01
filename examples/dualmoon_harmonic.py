@@ -1,4 +1,3 @@
-import os
 from nfsampler.nfmodel.realNVP import RealNVP
 from nfsampler.nfmodel.utils import *
 from nfsampler.sampler.MALA import mala_sampler
